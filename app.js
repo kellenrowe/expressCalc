@@ -8,7 +8,7 @@ const app = express();
 
 app.use(express.json());
 // useful error class to throw
-const { NotFoundError } = require("./expressError");
+const { NotFoundError, BadRequestError } = require("./expressError");
 
 const MISSING = "Expected key `nums` with comma-separated list of numbers.";
 
@@ -17,7 +17,14 @@ const MISSING = "Expected key `nums` with comma-separated list of numbers.";
 app.get("/mean", function (req, res) {
   let nums = req.query.nums;
   nums = nums.split(',');
-  nums = nums.map(n => Number(n));
+  nums = nums.map(n => {
+    if(!(Number(n))){
+      throw new BadRequestError(`${n} is not a number`);
+    } else {
+      return Number(n);
+    }  
+  });
+
   return res.json({
       operation: "mean",
       value: `${findMean(nums)}`
